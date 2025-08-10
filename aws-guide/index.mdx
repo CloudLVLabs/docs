@@ -24,18 +24,17 @@ IAM roles provide enhanced security by using temporary credentials and can be co
 
 1. Copy the generated **External ID** (this unique identifier ensures only Cloudlvl can assume your role)
 
-_[Screenshot placeholder: Cloudlvl app modal showing External ID generation]_
+![Cloudlvl External ID Generation](/images/docs-screen-1.png)
 
 ### Step 2: Create IAM Role in AWS Console
 
 1. Go to the [AWS IAM Console](https://console.aws.amazon.com/iam/home#/roles)
 2. Click **"Create role"**
 3. Select **"AWS account"** as the trusted entity type
-4. Choose **"Another AWS account"**
-5. Check **"Require external ID"** option
-6. Paste the External ID from Step 1 and click **"Next"**
+4. Check **"Require external ID"** option
+5. Paste the External ID from Step 1 and click **"Next"**
 
-_[Screenshot placeholder: AWS Console role creation with external ID field]_
+![aws console External ID ](/images/docs-screen-2.png)
 
 ### Step 3: Configure Permissions
 
@@ -44,7 +43,7 @@ _[Screenshot placeholder: AWS Console role creation with external ID field]_
    - For specific services: Choose relevant AWS managed policies (EC2, Lambda, S3, etc.)
 2. Click **"Next"**
 
-_[Screenshot placeholder: AWS permissions selection screen]_
+![aws console permission ](/images/docs-screen-3.png)
 
 ### Step 4: Finalize Role Creation
 
@@ -52,29 +51,27 @@ _[Screenshot placeholder: AWS permissions selection screen]_
 2. Add a **Description** (e.g., "Role for Cloudlvl AI to manage AWS infrastructure")
 3. Click **"Create role"**
 
-_[Screenshot placeholder: AWS role naming and creation screen]_
+![aws console role creation ](/images/docs-screen-4.png)
 
 ### Step 5: Update Trust Policy
 
 1. Find your newly created role in the roles list and click on it
 2. Go to the **"Trust relationships"** tab
-3. Return to the Cloudlvl app and copy the trust policy from the setup form
+3. Return to the Cloudlvl and copy the trust policy from the setup form
 
-_[Screenshot placeholder: Cloudlvl app form showing trust policy to copy]_
+![Cloudlvl create role modal](/images/docs-screen-5.png)
 
 4. Back in AWS Console, click **"Edit trust policy"**
 5. Replace the existing policy with the one from Cloudlvl
 6. Click **"Update policy"**
 
-_[Screenshot placeholder: AWS trust policy editor]_
+![AWS Console edit trust policy](/images/docs-screen-6.png)
 
 ### Step 6: Complete Setup in Cloudlvl
 
-1. Return to the Cloudlvl app setup form
+1. Return to the Cloudlvl form
 2. Enter your **Role ARN** (found in the role summary)
 3. Click **"Submit"** to validate and complete the setup
-
-_[Screenshot placeholder: Cloudlvl app final form submission]_
 
 <Tip>
   Your IAM role is now configured! Cloudlvl can securely assume this role to
@@ -147,8 +144,6 @@ _[Screenshot placeholder: AWS access key display screen with keys to copy]_
 1. Return to the Cloudlvl app setup form
 2. Enter your **Access Key ID** and **Secret Access Key**
 3. Click **"Submit"** to validate and complete the setup
-
-_[Screenshot placeholder: Cloudlvl app form with access key fields]_
 
 <Tip>
   Your IAM user is now configured! Cloudlvl can use these credentials to manage
