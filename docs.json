@@ -41,7 +41,7 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
+      "label": "Console",
       "href": "https://console.cloudlvl.com"
     }
   },
