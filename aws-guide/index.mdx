@@ -1,0 +1,169 @@
+---
+title: "Setup"
+description: "Configure AWS access for Cloudlvl AI to manage your cloud infrastructure"
+---
+
+## Overview
+
+To allow Cloudlvl to manage your AWS infrastructure, you need to provide secure access to your AWS account. There are two recommended methods:
+
+<Note>
+**IAM Roles (Recommended)**: More secure with temporary credentials and fine-grained permissions, but requires more setup steps.
+
+**IAM User**: Simpler to set up with permanent access keys, but less secure for production environments.
+
+</Note>
+
+---
+
+## Method 1: IAM Roles (Recommended)
+
+IAM roles provide enhanced security by using temporary credentials and can be configured with precise permissions. This is the recommended approach for production environments.
+
+### Step 1: Use External ID
+
+1. Copy the generated **External ID** (this unique identifier ensures only Cloudlvl can assume your role)
+
+_[Screenshot placeholder: Cloudlvl app modal showing External ID generation]_
+
+### Step 2: Create IAM Role in AWS Console
+
+1. Go to the [AWS IAM Console](https://console.aws.amazon.com/iam/home#/roles)
+2. Click **"Create role"**
+3. Select **"AWS account"** as the trusted entity type
+4. Choose **"Another AWS account"**
+5. Check **"Require external ID"** option
+6. Paste the External ID from Step 1 and click **"Next"**
+
+_[Screenshot placeholder: AWS Console role creation with external ID field]_
+
+### Step 3: Configure Permissions
+
+1. Select the permissions that Cloudlvl AI will need for your use case:
+   - For full infrastructure management: `PowerUserAccess` or `AdministratorAccess`
+   - For specific services: Choose relevant AWS managed policies (EC2, Lambda, S3, etc.)
+2. Click **"Next"**
+
+_[Screenshot placeholder: AWS permissions selection screen]_
+
+### Step 4: Finalize Role Creation
+
+1. Enter a **Role name** (e.g., "CloudlvlAIRole")
+2. Add a **Description** (e.g., "Role for Cloudlvl AI to manage AWS infrastructure")
+3. Click **"Create role"**
+
+_[Screenshot placeholder: AWS role naming and creation screen]_
+
+### Step 5: Update Trust Policy
+
+1. Find your newly created role in the roles list and click on it
+2. Go to the **"Trust relationships"** tab
+3. Return to the Cloudlvl app and copy the trust policy from the setup form
+
+_[Screenshot placeholder: Cloudlvl app form showing trust policy to copy]_
+
+4. Back in AWS Console, click **"Edit trust policy"**
+5. Replace the existing policy with the one from Cloudlvl
+6. Click **"Update policy"**
+
+_[Screenshot placeholder: AWS trust policy editor]_
+
+### Step 6: Complete Setup in Cloudlvl
+
+1. Return to the Cloudlvl app setup form
+2. Enter your **Role ARN** (found in the role summary)
+3. Click **"Submit"** to validate and complete the setup
+
+_[Screenshot placeholder: Cloudlvl app final form submission]_
+
+<Tip>
+  Your IAM role is now configured! Cloudlvl can securely assume this role to
+  manage your AWS resources.
+</Tip>
+
+---
+
+## Method 2: IAM User
+
+IAM users provide direct access through access keys. This method is simpler but less secure than IAM roles.
+
+<Warning>
+  Access keys provide permanent access to your AWS account. Store them securely
+  and rotate them regularly.
+</Warning>
+
+### Option A: Use Existing Access Keys
+
+If you already have AWS access keys configured:
+
+1. Use your existing **Access Key ID** and **Secret Access Key**
+2. Ensure the associated user has the necessary permissions for Cloudlvl operations
+3. Enter the credentials in the Cloudlvl setup form
+
+### Option B: Create New IAM User
+
+#### Step 1: Create IAM User
+
+1. Go to the [AWS IAM Console](https://console.aws.amazon.com/iam/home#/users)
+2. Click **"Create user"**
+3. Enter a username (e.g., "cloudlvl-ai-user")
+4. Select **"Programmatic access"**
+5. Click **"Next"**
+
+#### Step 2: Set Permissions
+
+1. Choose how to assign permissions:
+   - **Attach policies directly**: Select AWS managed policies
+   - **Add user to group**: Create or use existing groups with appropriate policies
+2. For full infrastructure management, consider:
+   - `PowerUserAccess` (recommended for most use cases)
+   - `AdministratorAccess` (full access, use with caution)
+3. Click **"Next"** through the remaining steps
+4. Click **"Create user"**
+
+#### Step 3: Generate Access Keys
+
+1. Click on your newly created user from the users list
+2. Go to the **"Security credentials"** tab
+3. Click **"Create access key"**
+
+_[Screenshot placeholder: AWS user security credentials with highlighted "Create access key" button]_
+
+4. Select **"Command Line Interface (CLI)"** as the use case
+5. Check the confirmation checkbox acknowledging the security best practices
+6. Click **"Next"** and then **"Create access key"**
+
+_[Screenshot placeholder: AWS access key creation with CLI option selected]_
+
+#### Step 4: Copy Credentials
+
+1. Copy both the **Access Key ID** and **Secret Access Key**
+2. Store them securely (you won't be able to see the secret key again)
+
+_[Screenshot placeholder: AWS access key display screen with keys to copy]_
+
+#### Step 5: Configure in Cloudlvl
+
+1. Return to the Cloudlvl app setup form
+2. Enter your **Access Key ID** and **Secret Access Key**
+3. Click **"Submit"** to validate and complete the setup
+
+_[Screenshot placeholder: Cloudlvl app form with access key fields]_
+
+<Tip>
+  Your IAM user is now configured! Cloudlvl can use these credentials to manage
+  your AWS resources.
+</Tip>
+
+---
+
+## Next Steps
+
+Once you've completed either setup method:
+
+1. **Start with simple commands** - Try basic operations like listing resources
+2. **Explore AI capabilities** - Begin using natural language to manage your infrastructure
+
+<Card title="Ready to start?" icon="rocket" href="/quickstart">
+  Continue with the quickstart guide to begin using Cloudlvl AI
+</Card>
