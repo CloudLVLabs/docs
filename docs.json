@@ -19,7 +19,7 @@
           },
           {
             "group": "AWS Guide",
-            "pages": ["aws-guide/index"]
+            "pages": ["aws-guide/index", "aws-guide/permissions"]
           }
         ]
       }

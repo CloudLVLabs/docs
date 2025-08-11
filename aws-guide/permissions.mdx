@@ -1,0 +1,322 @@
+---
+title: "Permissions Management"
+description: "Understand how Cloudlvl manages AWS permissions and configure the right access for your infrastructure needs"
+---
+
+## Overview
+
+Cloudlvl works similarly to Terraform when it comes to AWS permissions. The AI agent needs specific permissions to create, update, or delete AWS resources on your behalf. You control exactly what the AI can do by configuring the appropriate IAM permissions.
+
+<Note>
+  **Key Principle**: The AI agent only gets the permissions you explicitly
+  grant. If you don't give it permission to create EC2 instances, it won't be
+  able to create them, even if you ask it to.
+</Note>
+
+---
+
+## How Permissions Work
+
+### The Terraform Analogy
+
+Just like Terraform, Cloudlvl:
+
+1. **Indexes your current infrastructure** (no permissions needed - done during deployment)
+2. **Plans changes** based on your requests using the indexed data
+3. **Applies changes** to AWS resources (requires write permissions)
+4. **Manages state** and tracks what it has created
+
+<Note>
+  **Important**: When you ask "List my EC2 instances", the AI agent doesn't
+  query AWS directly. It uses its indexed knowledge of your infrastructure from
+  the last deployment. This means **no read permissions are required** for
+  viewing your current resources.
+</Note>
+
+### Permission Levels
+
+You only need to configure permissions for **actions that modify** your infrastructure:
+
+<Columns cols={2}>
+  <Card title="Service-Level" icon="layer-group" color="#3B82F6">
+    Grant access to entire AWS services (e.g., all EC2 operations)
+  </Card>
+  <Card title="Action-Level" icon="pen-to-square" color="#10B981">
+    Grant specific actions (e.g., only create and describe instances)
+  </Card>
+  <Card title="Resource-Level" icon="lock" color="#F59E0B">
+    Limit access to specific resources (e.g., only instances with certain tags)
+  </Card>
+  <Card title="Condition-Based" icon="filter" color="#8B5CF6">
+    Add conditions like time, IP, or MFA requirements
+  </Card>
+</Columns>
+
+---
+
+## Common Permission Scenarios
+
+### Scenario 1: Web Application Infrastructure
+
+**What you want to build**: A typical web app with EC2, RDS, and Load Balancer
+
+**Required permissions**:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:RunInstances",
+        "ec2:DescribeInstances",
+        "ec2:TerminateInstances",
+        "ec2:CreateSecurityGroup",
+        "ec2:DescribeSecurityGroups",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "rds:CreateDBInstance",
+        "rds:DescribeDBInstances",
+        "rds:DeleteDBInstance",
+        "elasticloadbalancing:CreateLoadBalancer",
+        "elasticloadbalancing:DescribeLoadBalancers",
+        "elasticloadbalancing:DeleteLoadBalancer"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+**Example AI commands this enables**:
+
+- "Create a web server with a MySQL database"
+- "Add a load balancer to distribute traffic"
+- "Scale up to 3 web servers"
+
+### Scenario 2: Serverless Application
+
+**What you want to build**: Lambda functions, API Gateway, and DynamoDB
+
+**Required permissions**:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:UpdateFunctionCode",
+        "lambda:DeleteFunction",
+        "lambda:ListFunctions",
+        "apigateway:*",
+        "dynamodb:CreateTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:DeleteTable",
+        "iam:CreateRole",
+        "iam:AttachRolePolicy",
+        "iam:PassRole"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+**Example AI commands this enables**:
+
+- "Create a REST API with Lambda backend"
+- "Add a DynamoDB table for user data"
+- "Set up CRUD operations for my API"
+
+**What this restricts**:
+
+- Only allows t2 and t3 instance types (cost control)
+- Limits to specific regions
+- Perfect for development workloads
+
+---
+
+## AWS Managed Policies
+
+For quick setup, you can use AWS managed policies:
+
+### Recommended Policies by Use Case
+
+<Columns cols={2}>
+  <Card title="PowerUserAccess" icon="bolt" color="#10B981">
+    **Best for**: Most production use cases
+    <br /> **Includes**: All services except IAM user management
+  </Card>
+  <Card title="AdministratorAccess" icon="crown" color="#EF4444">
+    **Best for**: Full control scenarios <br />**Includes**: Everything (including
+    IAM)
+  </Card>
+  <Card title="EC2FullAccess" icon="server" color="#3B82F6">
+    **Best for**: Compute-focused workloads <br />**Includes**: Complete EC2
+    management
+  </Card>
+  <Card title="Custom Policy" icon="book" color="#8B5CF6">
+    **Best for**: Specific requirements <br />**Includes**: Only what you define
+
+  </Card>
+</Columns>
+
+---
+
+## Creating Custom Policies
+
+### Step-by-Step Policy Creation
+
+1. **Identify what you want to build**
+
+   - List the AWS services you'll need
+   - Think about the lifecycle (create, update, delete)
+
+2. **Find the required actions**
+
+   - Use AWS documentation to find action names
+   - Consider both primary and supporting actions
+
+3. **Test with minimal permissions**
+   - Start restrictive and add permissions as needed
+   - Monitor CloudTrail logs for denied actions
+
+### Example: Building a Custom Policy
+
+Let's say you want the AI agent to manage S3 buckets and CloudFront distributions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "S3Management",
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:DeleteBucket",
+        "s3:ListBucket",
+        "s3:GetBucketLocation",
+        "s3:PutBucketPolicy",
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": ["arn:aws:s3:::cloudlvl-*", "arn:aws:s3:::cloudlvl-*/*"]
+    },
+    {
+      "Sid": "CloudFrontManagement",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateDistribution",
+        "cloudfront:GetDistribution",
+        "cloudfront:UpdateDistribution",
+        "cloudfront:DeleteDistribution",
+        "cloudfront:ListDistributions"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+This policy allows:
+
+- ✅ Managing S3 buckets that start with "cloudlvl-"
+- ✅ Full CloudFront distribution management
+- ❌ Cannot access other S3 buckets
+- ❌ Cannot manage other AWS services
+
+---
+
+## Permission Testing
+
+### How to Test Your Permissions
+
+1. **Start with a simple request** (no permissions needed)
+
+   ```
+   "List my current EC2 instances"
+   ```
+
+   _This works immediately as it uses indexed data_
+
+2. **Try creating something small** (requires permissions)
+
+   ```
+   "Create a small test S3 bucket"
+   ```
+
+   _This requires s3:CreateBucket permission_
+
+3. **Test modifications** (requires permissions)
+
+   ```
+   "Add a lifecycle policy to that bucket"
+   ```
+
+   _This requires s3:PutBucketLifecycleConfiguration permission_
+
+4. **Test cleanup** (requires permissions)
+   ```
+   "Delete the test bucket"
+   ```
+   _This requires s3:DeleteBucket permission_
+
+### Common Permission Errors
+
+<Warning>
+  **AccessDenied**: The AI agent doesn't have permission for the requested
+  **modification** action - **Solution**: Add the missing permission to your
+  policy - **Note**: This only happens when trying to create/update/delete
+  resources
+</Warning>
+
+<Warning>
+  **InvalidUserID.NotFound**: The AI agent can't assume the role - **Solution**:
+  Check your trust policy configuration
+</Warning>
+
+<Warning>
+  **UnauthorizedOperation**: Specific action is blocked - **Solution**: Review
+  resource-level restrictions in your policy
+</Warning>
+
+---
+
+## Best Practices
+
+### Security Best Practices
+
+1. **Start with least privilege**
+
+   - Begin with minimal permissions
+   - Add permissions as needed
+
+2. **Use resource restrictions**
+
+   - Limit access to specific resource patterns
+   - Use tags to control access
+
+3. **Rotate credentials**
+   - For IAM users, rotate access keys regularly
+   - For roles, monitor usage patterns
+
+---
+
+### Getting Help
+
+If you're having permission issues:
+
+1. **Check the error message** - it usually indicates the missing permission
+2. **Review AWS documentation** for the service you're trying to use
+3. **Test with AWS CLI** using the same credentials
+4. **Use AWS Policy Simulator** to test your policies
+
+<Card title="Need help with permissions?" icon="life-buoy">
+  Contact our support team for assistance with complex permission scenarios{" "}
+  hello@cloudlvl.com
+</Card>
